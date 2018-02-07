@@ -11,6 +11,8 @@ suites = ['D','C','H','S']
 deck = []
 player = 1
 game = 'Not Over'
+
+#sets initial starting dollor amount
 dealerMoney = 200
 playerMoney = 200
 
@@ -78,6 +80,7 @@ class Game(object):
 
         return on_table
 
+    #hit
     def hit(self, current_player):
         global on_table
 
@@ -85,6 +88,7 @@ class Game(object):
         on_table[current_player].append(self.gameDeck[0])
         del self.gameDeck[0]
 
+    #stand
     def stand(self, current_player):
         global player
         global deal
@@ -122,7 +126,7 @@ class Game(object):
                 pass
 
 
-
+    #counts hand value and returns total
     def cardCounter(self, current_player):
 
         total = []
@@ -138,7 +142,7 @@ class Game(object):
         return total
 
 
-
+    #automates dealers turn
     def turnDealer(self):
         global dealer_bust
 
@@ -164,7 +168,7 @@ class Game(object):
             else:
                 print('Dealer Stays')
                 break
-
+    #compares final hand totals, assings winner, and exchanges bets
     def compare(self, betAmount):
         global dealer_bust
         global player_bust
@@ -187,4 +191,73 @@ class Game(object):
             input("Press any key to continue \n")
         else:
             pass
+
+
+# Game Engine
+# instantiates the current game, and deals out the cards
+currentGame = Game(deck, players, current_player)
+on_table = currentGame.deal()
+
+#betting function
+def bet():
+
+    print('You currently have $', playerMoney)
+    betAmount = int(input('How much would you like to bet $'))
+    betSet = False
+
+    while betSet != True:
+
+        if betAmount <= playerMoney:
+            print('Bet set at $', betAmount)
+            betSet = True
+
+        else:
+            print('Enter an amount equal to or less that what you have.')
+
+    return betAmount
+
+
+while game != 'Over':
+
+    deal = 'true'
+    betAmount = bet()
+    print('Dealer shows:', on_table[0][0])
+    player_bust = False
+    dealer_bust = False
+
+
+    while deal == 'true':
+
+        print('You are showing:', str(on_table[1]))
+        total = currentGame.cardCounter(player)
+        print('Your card total is:', sum(total))
+
+        p = 1
+
+        if sum(total) <= 20:
+            currentGame.firstTurnPlayer(p)
+
+        elif sum(total) == 21:
+            break
+
+        else:
+            print('You bust')
+            deal = "false"
+            player_bust = True
+
+    # Dealer takes their turn
+    if player_bust != True:
+        currentGame.turnDealer()
+
+    else:
+        print('Dealer wins. Dealer had', on_table[0], 'with a hand total of:', sum(currentGame.cardCounter(0)))
+
+    currentGame.compare(betAmount)
+    on_table = currentGame.deal()
+    player = 1
+    dealer_bust = False
+    player_bust = False
+
+
+
 
